@@ -1,0 +1,386 @@
+﻿@using ISCS.ViewModels
+@model TechCardViewModel
+    
+<form id="TechCardCreate" asp-action="Create" method="post">
+    @Html.HiddenFor(x => x.AreaId)
+    @Html.HiddenFor(x => x.SelectedEquipmentIdsJson)
+    <div class="panel panel-default" style="margin-top: 50px;">
+        <div class="panel-heading" style="height: 50px;">
+            Create Tech Card
+            <button class="btn btn-primary btn-sm pull-right">Cancel</button>
+            <button name="confirm" type="button" class="btn btn-warning btn-sm pull-right">Confirm</button>
+        </div>
+        <div class="panel-body" style="padding: 0px;">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <table style="width: 100%; border-spacing: 100px">
+                <colgroup>
+                    <col style="width: 1%; background-color: dimgray"/>
+                    <col style="width: 99%"/>
+                </colgroup>
+                <tr>
+                    <td class="form-group col-xs-1">
+                        <label>Work:</label>
+                    </td>
+                    <td class="form-group col-xs-6">
+                        @(Html.Kendo()
+                              .DropDownListFor(x => x.WorkId)
+                              .DataTextField("Name")
+                              .DataValueField("Id")
+                              .BindTo(Model.AvailableWorks)
+                              .Events(e => e.Change("onChange"))
+                              .OptionLabel("Please Select")
+                              .HtmlAttributes(new
+                              {
+                                  style = "width:28%"
+                              }))
+                        <span validation hidden>
+                            <br />
+                            <img width="20" height="20" src="~/images/error.png" />
+                            <span message>
+                                Work field is required.
+                            </span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="form-group col-xs-1">
+                        <label>Description:</label>
+                    </td>
+                    <td class="form-group col-xs-6">
+                        <textarea asp-for="Description" style="width: 625px; resize: none; height: 100px; overflow-y: scroll;"></textarea>
+                        <span validation hidden>
+                            <br />
+                            <img width="20" height="20" src="~/images/error.png" />
+                            <span message>
+                                Description field is required.
+                            </span>
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="form-group col-xs-1">
+                        <label>Area:</label>
+                    </td>
+                    <td class="form-group col-xs-6">
+                        @Html.HiddenFor(x => x.AreaId)
+                        <img class="map" src="~/images/map.jpg" usemap="#test"/>
+                        <map name="test">
+                        </map>
+                        <span area-validation hidden>
+                            <img width="20" height="20" src="~/images/error.png"/>
+                            <span message>
+                                Area is required.
+                            </span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="form-group col-xs-1">
+                        <label asp-for="PeopleNumber"></label>
+                    </td>
+                    <td class="form-group col-xs-6">
+                        @(Html.Kendo()
+                              .NumericTextBoxFor(x => x.PeopleNumber)
+                              .Format("0")
+                              .Min(5)
+                              .Max(10)
+                              .HtmlAttributes(new
+                              {
+                                  style = "width:28%"
+                              }))
+                        <span validation hidden>
+                            <br />
+                            <img width="20" height="20" src="~/images/error.png" />
+                            <span message>
+                                People number field is required.
+                            </span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="form-group col-xs-1">
+                        <label>Equipment:</label>
+                    </td>
+                    <td class="form-group col-xs-6">
+                        <table class="multiselect-list">
+                            <thead>
+                            <tr>
+                                <th>Available Equipment</th>
+                                <th></th>
+                                <th>Selected Equipment</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <div side="left" class="list-box left">
+                                        <ul class="list-unstyled">
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td class="btn-col">
+                                    <div class="btn-group-vertical">
+                                        <button id="right" type="button" class="glyphicon glyphicon-arrow-right"></button>
+                                        <br/><br/>
+                                        <button id="left" type="button" class="glyphicon glyphicon-arrow-left"></button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div side="right" class="list-box right">
+                                        <ul class="list-unstyled"></ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <span validation hidden>
+                            <img width="20" height="20" src="~/images/error.png" />
+                            <span message>
+                                You should choice at least one equipment.
+                            </span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="form-group col-xs-3">&nbsp;</td>
+                    <td class="form-group col-xs-1"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="panel-footer" style="height: 50px;">
+            &nbsp;
+            <button class="btn btn-primary btn-sm pull-right">Cancel</button>
+            <button name="confirm" type="button" class="btn btn-warning btn-sm pull-right">Confirm</button>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript" src="~/jquery.maphilight.min.js"></script>
+<script>
+
+    $(document).ready(() => {
+        var arr = $('#TechCardCreate input[type=text]');
+        arr.each((i, el) => {
+            var color = $(el).val() ? "black" : "gray";
+            $(el).siblings().children(".k-input").css("color", color);
+        });
+
+        $('[name=confirm]').click(() => {
+            $('[validation], [area-validation]').hide();
+            $('#AreaId').val($('area[checked]').attr('id'));
+            var selectedEq = $(".right ul li");
+            var eqIds = Array.from(selectedEq, x => $(x).attr("id"));
+            $('#SelectedEquipmentIdsJson').val(JSON.stringify(eqIds));
+
+            var formHasErrors = false;
+
+            if (!$('#WorkId').val()) {
+                $('#WorkId').parents('td').find('[validation]').show();
+                formHasErrors = true;
+            }
+
+            if (!$('#Description').val()) {
+                $('#Description').parents('td').find('[validation]').show();
+                formHasErrors = true;
+            }
+
+            if (!$('#AreaId').val()) {
+                $('[area-validation]').show();
+                formHasErrors = true;
+            }
+
+            if (!$('#PeopleNumber').val()) {
+                $('#PeopleNumber').parents('td').find('[validation]').show();
+                formHasErrors = true;
+            }
+
+            if (!selectedEq.length) {
+                $('.multiselect-list').parents('td').find('[validation]').show();
+                formHasErrors = true;
+            }
+
+            if (formHasErrors) {
+                return;
+            }
+
+            $('form').submit();
+        });
+    });
+
+    function onChange(e) {
+        var dropDown = e.sender;
+        var dropDownElement = dropDown.element;
+        var color = $(dropDownElement).val() ? "black" : "gray";
+        $(dropDownElement).siblings().children(".k-input").css("color", color);
+        var workId = dropDown.dataItem(dropDown.select()).get('Id');
+        $('[name=test]').empty();
+        $("area")
+            .removeAttr("checked").
+            data('maphilight', { alwaysOn: false })
+            .trigger('alwaysOn.maphilight');
+        $.post("@Url.Action("GetAreaByWork","TechCard")", { workId: workId })
+            .then((result) => {
+                result.forEach((el) => {
+                    $('[name=test]').append(`<area name="star" title="${el.Name}" shape="poly" coords="${el.Coords}" id="${el.Id}">`);
+                });
+
+                $('.map').maphilight();
+
+                $('[name=test] area').click(function (e) {
+                    e.preventDefault();
+                    $("area")
+                        .removeAttr("checked").
+                        data('maphilight', { alwaysOn: false })
+                        .trigger('alwaysOn.maphilight');
+
+                    $(e.target)
+                        .attr("checked", true)
+                        .data('maphilight', {
+                            alwaysOn: true,
+                            strokeWidth: 3
+                        }).trigger('alwaysOn.maphilight');
+
+                    $.post("@Url.Action("GetEquipmentByArea","TechCard")", { areaId: $('area[checked]').attr('id') },
+                        (result) => {
+                            $('.list-box.left ul, .list-box.right ul').empty();
+                            result.forEach((el) => {
+                                $('.list-box.left ul').append(`<li id=${el.Id}>${el.Name}</li>`);
+                            });
+                            configureListBox();
+                        });
+                });
+            });
+    }
+
+    $("#right").click(() => {
+        transfer('.left', '.right');
+    });
+
+    $("#left").click(() => {
+        transfer('.right', '.left');
+    });
+
+    function transfer(from, to) {
+        var selectedItem = $(`${from} ul li[selected="selected"]`);
+        var nextItem = selectedItem.next();
+        $(selectedItem).removeAttr("selected").appendTo($(`${to} ul`));
+        if (selectedItem.length === 1) {
+            nextItem.attr("selected", true);
+        }
+    }
+</script>
+
+<script>
+
+    function configureListBox() {
+        $(".list-box ul li").click((e) => {
+            var a = e.target;
+            if (!e.ctrlKey) {
+                $('.list-box ul li').removeAttr('selected');
+                $(a).attr("selected", true);
+            } else {
+                var side = $('.list-box ul li[selected]').parents('.list-box').attr('side');
+                if (side === $(a).parents(".list-box").attr('side')) {
+                    $(a).attr("selected", !$(a).attr("selected"));
+                }
+            }
+        });
+    }
+</script>
+
+<style>
+
+[validation] [message], [area-validation] [message] {
+    color: #DC143C;
+    font-size: 14px;
+    font-weight: 600;
+    font-style: italic;
+}
+
+.list-box {
+    background-color: white;
+    color: black;
+    border-radius: 3px;
+    width: 228px;
+    height: 255px;
+    word-wrap: break-word;
+    overflow: auto;
+}
+
+    .list-box ul {
+        padding-bottom: 5px;
+    }
+
+        .list-box ul li {
+            height: 30px;
+            padding-left: 10px;
+            cursor: default;
+        }
+
+            .list-box ul li:hover {
+                background-color: silver;
+                border-radius: 3px;
+            }
+</style>
+
+<style>
+td {
+    padding-top: 15px;
+}
+
+.multiselect-list .btn-col {
+    padding-left: 10px;
+    width: 58px;
+}
+
+.multiselect-list button {
+    color: black;
+    height: 30px;
+    width: 40px;
+    border-radius: 11px;
+    border-color: lightsteelblue;
+    outline: none;
+}
+
+.panel-body tr td:first-of-type {
+    vertical-align: top;
+}
+
+.list-box ul li[selected="selected"] {
+    background-color: #428bca;
+    color: white;
+    border-color: white;
+}
+
+.list-box ul li {
+    padding-top: 5px;
+}
+
+.k-popup .k-list .k-item {
+    cursor: pointer;
+    color: black;
+}
+
+.k-list-optionlabel {
+    cursor: pointer;
+    color: black;
+    padding: 1px 11px;
+    height: 20px;
+}
+
+.k-state-border-up .k-state-active,
+.k-state-border-down .k-state-active {
+    border-color: darkslateblue;
+    background-color: white;
+}
+
+.k-popup .k-list .k-state-selected.k-state-focused {
+    border-color: darkslateblue;
+    background-color: #7a8288;
+}
+</style>
+
+@section Scripts {
+@await Html.PartialAsync("_ValidationScriptsPartial")
+}

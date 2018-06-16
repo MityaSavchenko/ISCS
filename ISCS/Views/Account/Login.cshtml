@@ -1,0 +1,66 @@
+﻿@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http.Authentication
+@model LoginViewModel
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<section>
+    <form asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+        <div class="panel panel-default" style="width: 350px;">
+            <div class="panel-heading" style="height: 60px;">
+                <h4>@ViewData["Title"]</h4>
+            </div>
+            <div class="panel-body" style="padding: 0px; height: 260px;">
+                <div class="container col-md-11">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Password"></label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox">
+                            <label asp-for="RememberMe">
+                                @Html.CheckBoxFor(x => x.RememberMe)
+                                @Html.DisplayNameFor(m => m.RememberMe)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer" style="height: 60px;">
+                &nbsp;
+                <div class="form-group pull-right">
+                    <button type="submit" class="btn btn-warning">Log in</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+<script>
+    jQuery.fn.center = function () {
+        this.css("position", "absolute");
+        this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) +
+            $(window).scrollTop()) + "px");
+        this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) +
+            $(window).scrollLeft()) + "px");
+        return this;
+    }
+
+    $('div.panel.panel-default').center();
+</script>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

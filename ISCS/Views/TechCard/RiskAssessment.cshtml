@@ -1,0 +1,304 @@
+﻿@using System.Globalization
+@using ISCS.ViewModels
+@model TechCardViewModel
+
+<link rel="stylesheet" type="text/css" href="~/css/jquery.dataTables.min.css" />
+<script type="text/javascript" charset="utf8" src="~/lib/jquery.dataTables.min.js"></script>
+
+<div class="panel panel-default" style="margin-top: 50px;">
+    <div class="panel-heading" style="height: 50px;">
+        Risk Assessment
+        <button class="btn btn-primary btn-sm pull-right">Cancel</button>
+        <button name="confirm" type="button" class="btn btn-warning btn-sm pull-right">Confirm</button>
+    </div>
+    <div style="height: 65px; background-color: rgb(105,112,117)">
+        <table id="filters" style="margin-left: 40px; border-collapse: collapse">
+            <colgroup>
+                <col style="background-color: rgb(105,112,117)" />
+                <col style="background-color: rgb(105,112,117)" />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td first>Hazard:&nbsp;&nbsp;&nbsp;</td>
+                    <td first>
+                        @(Html.Kendo()
+                            .DropDownList()
+                            .Name("Equipment")
+                            .DataTextField("Name")
+                            .BindTo(Model.AvailableHazards)
+                            .DataValueField("Id")
+                            .OptionLabel("Please select")
+                            .Events(x => x.Change("onEquipmentChange"))
+                            .HtmlAttributes(new { style="width:270px"}))
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-body" style="padding: 0px;">
+        <table style="width: 100%">
+            <colgroup>
+                <col style="width: 3%" />
+                <col style="width: 94%" />
+                <col style="width: 3%" />
+            </colgroup>
+            <tbody>
+            <tr>
+                <td></td>
+                <td>
+                    <br />
+                    <div style="margin: 0 auto; background-color: #3e444c; border-top-left-radius: 3px; border-top-right-radius: 3px; border: 1px solid rgb(28, 30, 34);">
+                        <label style="margin-top: 14px;padding-left: 16px;">Hazard Controls</label>
+                        <button id="select" type="button" class="btn btn-primary btn-sm pull-right" style="margin-top: 10px; margin-bottom: 10px; margin-right: 10px;">Select</button>
+                        <table id="example" class="table table-striped table-bordered nowrap" style="margin-bottom: 0px">
+                            <thead>
+                            <tr>
+                                <th style="width: 4.5%"></th>
+                                <th>Name</th>
+                            </tr>
+                            </thead>
+                        </table>
+                        <div style="height: 200px; overflow-y: scroll; border-left: 1px solid black; border-bottom: 1px solid black; border-color: rgb(28, 30, 34); background-color: #272b30;">
+                            <table class="table table-striped table-bordered nowrap">
+                                <colgroup>
+                                    <col style="width: 1%"/>
+                                    <col/>
+                                </colgroup>
+                                <tbody equipmentOperations></tbody>
+                            </table>
+                        </div>
+                        <br/>
+                    </div>
+                    <br />
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <br />
+                    <div style="margin: 0 auto; background-color: #3e444c; border-top-left-radius: 3px; border-top-right-radius: 3px; border: 1px solid rgb(28, 30, 34);">
+                        <label style="margin-top: 14px;padding-left: 16px;">Selected Hazard Controls</label>
+                        <button id="remove" type="button" class="btn btn-primary btn-sm pull-right" style="margin-top: 10px; margin-bottom: 10px; margin-right: 10px;">Remove</button>
+                        <table id="example" class="table table-striped table-bordered nowrap" style="margin-bottom: 0px">
+                            <thead>
+                            <tr>
+                                <th style="width: 4.5%"></th>
+                                <th style="width: 26.4%">Hazard Name</th>
+                                <th>Control Name</th>
+                            </tr>
+                            </thead>
+                        </table>
+                        <div style="height: 200px; overflow-y: scroll; border-left: 1px solid black; border-bottom: 1px solid black; border-color: rgb(28, 30, 34); background-color: #272b30;">
+                            <table class="table table-striped table-bordered nowrap">
+                                <colgroup>
+                                    <col style="width: 1%"/>
+                                    <col style="width: 26.8%"/>
+                                    <col/>
+                                </colgroup>
+                                <tbody resultOperations>
+                                @foreach (var operation in Model.HazardControls)
+                                {
+                                    var res = operation.HazardId + "_" + operation.Id;
+                                    var data = operation.Id;
+                                    <tr>
+                                        <td><input class="k-checkbox" data="@data" id="@res" name="@res" type="checkbox"><label class="k-checkbox-label" for="@res"></label></td>
+                                        <td>@operation.HazardName</td>
+                                        <td name>@operation.Name</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                        <br/>
+                    </div>
+                    <br />
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <div class="panel-footer" style="height: 50px;">
+        &nbsp;
+        <button class="btn btn-primary btn-sm pull-right">Cancel</button>
+        <button name="confirm" type="button" class="btn btn-warning btn-sm pull-right">Confirm</button>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Attention!!!</h4>
+            </div>
+            <div class="modal-body">
+                <p>Sorry, but you can't add more than two similar operations in one Tech Card</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal2" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Attention!!!</h4>
+            </div>
+            <div class="modal-body">
+                <p>You should add to technological card at least one operations for saving data</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#select').click(() => {
+            var selectedRows = $('[equipmentOperations] input[type=checkBox]:checked');
+            var selectedOperationIds = $('[resultOperations] input[type="checkbox"]').map((i, el) => {
+                return el.id.substring(el.id.indexOf("_")+1);
+            }).toArray();
+            var newSelectedOperationIds = $('[equipmentOperations] input[type=checkBox]:checked').map((i, el) => {
+                return el.id.substring(el.id.indexOf("_") + 1);
+            }).toArray();
+
+            var flag = false;
+            newSelectedOperationIds.forEach((el) => {
+                var number = 0;
+                selectedOperationIds.forEach((i) => {
+                    if (el === i) {
+                        if (++number === 2) {
+                            flag = true;
+                        }
+                    }
+                });
+                if (flag) {
+                    return;
+                }
+            });
+            if (flag) {
+                $("#myModal").modal('show');
+                return;
+            }
+
+            selectedRows.each((i, el) => {
+                $(el).prop('checked', false);
+                var row = $(el).closest('tr');
+                var id = row.find('input:checkbox').attr('id');
+                var data = row.find('input:checkbox').attr('data');
+                row.remove();
+                $('[resultOperations]').append(`
+                    <tr>
+                          <td><input class="k-checkbox" data="${data}" id="${id}" name="${id}" type="checkbox"><label class="k-checkbox-label" for="${id}"></label></td>
+                         <td>${row.find('[hidden]').text()}</td>
+                         <td name>${row.find('[name]').text()}</td>
+                    </tr>
+                `);
+            });
+        });
+
+        $('#remove').click(() => {
+            var selectedRows = $('[resultOperations] input[type=checkBox]:checked');
+            selectedRows.each((i, el) => {
+                var id = el.id;
+                var equipmentId = id.substring(0, id.indexOf("_"));
+                var eqIdValue = $("#Equipment").val();
+
+                if (equipmentId == eqIdValue) {
+                    var row = $(el).closest('tr');
+                    var id1 = row.find('input:checkbox').attr('id');
+                    var data = row.find('input:checkbox').attr('data');
+                    row.remove();
+                    $('[equipmentOperations]').append(`
+                    <tr>
+                          <td><input class="k-checkbox" data="${data}" id="${id1}" name="${id1}" type="checkbox"><label class="k-checkbox-label" for="${id1}"></label></td>
+                         <td>${row.find('[name]').text()}</td>
+                    </tr>
+                `);
+                } else {
+                    $(el).closest('tr').remove();
+                }
+            });
+        });
+
+        $('[name=confirm]').click(() => {
+            var operations = $('[resultOperations] input[type=checkBox]').map((i, el) => {
+                return {
+                    Id: $(el).attr('data')
+                };
+            }).toArray();
+
+            if (!operations.length) {
+                $("#myModal2").modal('show');
+                return;
+            }
+            $.post("@Url.Action("SaveRiskAssessment","TechCard")", { techCardId: '@Model.Id', controls: operations },
+                () => {
+                    location.assign("@Url.Action("View","TechCard")/@Model.Id");
+                });
+
+        });
+    });
+
+    function onEquipmentChange(arg) {
+        $('[equipmentOperations]').empty();
+        var equipmentId = arg.sender.value();
+        $.post("@Url.Action("GetControlsByHazard","TechCard")",
+            {
+                hazardId: equipmentId
+            },
+            (result) => {
+                var selectedIds = $('[resultOperations] input[type="checkbox"]').map((i, el) => {
+                                                            return el.id;
+                                                        }).toArray();
+                result = result.filter((el) => {
+                    var id = el.HazardId + "_" + el.Id;
+                    return selectedIds.indexOf(id) < 0;
+                });
+                result.forEach((el) => {
+                    $('[equipmentOperations]').append(
+                        `<tr>
+                            <td><input class="k-checkbox" data="${el.Id}" id="${equipmentId}_${el.Id}" name="${equipmentId}_${el.Id}" type="checkbox"><label class="k-checkbox-label" for="${equipmentId}_${el.Id}"></label></td>
+                            <td hidden>${el.HazardName}</td>
+                            <td name>${el.Name}</td>
+                        </tr>`
+                        );
+                });
+            });
+    }
+
+</script>
+
+<style>
+    #filters td {
+        padding-top: 10px;
+    }
+</style>
+
+<style>
+    .k-popup .k-list .k-item {
+        cursor: pointer;
+        color: black;
+    }
+
+    .k-state-border-up .k-state-active,
+    .k-state-border-down .k-state-active {
+        border-color: darkslateblue;
+        background-color: white;
+    }
+
+    .k-popup .k-list .k-state-selected.k-state-focused {
+        border-color: darkslateblue;
+        background-color: #7a8288;
+    }
+</style>

@@ -1,0 +1,13 @@
+D:\ИОСУ\ISCS\ISCS\bin\Debug\netcoreapp2.0\ISCS.deps.json
+D:\ИОСУ\ISCS\ISCS\bin\Debug\netcoreapp2.0\ISCS.runtimeconfig.json
+D:\ИОСУ\ISCS\ISCS\bin\Debug\netcoreapp2.0\ISCS.runtimeconfig.dev.json
+D:\ИОСУ\ISCS\ISCS\bin\Debug\netcoreapp2.0\ISCS.dll
+D:\ИОСУ\ISCS\ISCS\bin\Debug\netcoreapp2.0\ISCS.pdb
+D:\ИОСУ\ISCS\ISCS\bin\Debug\netcoreapp2.0\Microsoft.DotNet.InternalAbstractions.dll
+D:\ИОСУ\ISCS\ISCS\obj\Debug\netcoreapp2.0\ISCS.csproj.CoreCompileInputs.cache
+D:\ИОСУ\ISCS\ISCS\obj\Debug\netcoreapp2.0\UserSecretsAssemblyInfo.cs
+D:\ИОСУ\ISCS\ISCS\obj\Debug\netcoreapp2.0\ISCS.AssemblyInfoInputs.cache
+D:\ИОСУ\ISCS\ISCS\obj\Debug\netcoreapp2.0\ISCS.AssemblyInfo.cs
+D:\ИОСУ\ISCS\ISCS\obj\Debug\netcoreapp2.0\ISCS.dll
+D:\ИОСУ\ISCS\ISCS\obj\Debug\netcoreapp2.0\ISCS.pdb
+D:\ИОСУ\ISCS\ISCS\obj\Debug\netcoreapp2.0\ISCS.csprojResolveAssemblyReference.cache

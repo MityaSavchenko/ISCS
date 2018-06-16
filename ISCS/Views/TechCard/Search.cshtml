@@ -1,0 +1,313 @@
+﻿@using System.Globalization
+@using ISCS.Data.Entities
+@using ISCS.ViewModels
+@model TechCardViewModel
+
+<link rel="stylesheet" type="text/css" href="~/css/jquery.dataTables.min.css" />
+<script type="text/javascript" charset="utf8" src="~/lib/jquery.dataTables.min.js"></script>
+
+<div class="panel panel-default" style="margin-top: 50px;">
+    <div class="panel-heading" style="height: 50px;">
+        Tech Card Search
+        <button class="btn btn-primary btn-sm pull-right">Cancel</button>
+    </div>
+    <div style="height: 110px; background-color: rgb(105,112,117)">
+        <table id="filters" style="margin-left: 40px; border-collapse: collapse">
+            <colgroup>
+                <col style="background-color: rgb(105,112,117)" />
+                <col style="background-color: rgb(105,112,117)" />
+                <col style="background-color: rgb(105,112,117)" />
+                <col style="background-color: rgb(105,112,117)" />
+                <col style="background-color: rgb(105,112,117)" />
+                <col style="background-color: rgb(105,112,117)" />
+                <col style="background-color: rgb(105,112,117)" />
+                <col style="background-color: rgb(105,112,117)" />
+                <col style="background-color: rgb(105,112,117)" />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td first>Work:&nbsp;&nbsp;&nbsp;</td>
+                    <td first>
+                        @(Html.Kendo()
+                            .DropDownList()
+                            .Name("Work")
+                            .DataTextField("Name")
+                            .DataValueField("Id")
+                            .OptionLabel("All")
+                            .Events(x => x.Change("onWorkChange")))
+                    </td>
+                    <td style="padding-left: 40px">From: &nbsp;&nbsp;&nbsp;</td>
+                    <td>@Html.Kendo().DatePicker().Name("From").Value(DateTime.Today.AddDays(-7)).Events(x => x.Change("onFromChange"))</td>
+                    <td style="padding-left: 40px">To:&nbsp;&nbsp;&nbsp;</td>
+                    <td>@Html.Kendo().DatePicker().Name("To").Value(DateTime.Today.AddDays(7)).Events(x => x.Change("onToChange"))</td>
+                    <td style="padding-left: 40px">Description:&nbsp;&nbsp;&nbsp;</td>
+                    <td>@Html.Kendo().TextBox().Name("Description")</td>
+                    <td></td>
+                </tr>
+            <tr>
+                <td>State:&nbsp;&nbsp;&nbsp;</td>
+                <td>
+                    @(Html.Kendo()
+                          .DropDownList()
+                          .Name("State")
+                          .BindTo(Enum.GetNames(typeof(TechCardStates))))
+                </td>
+                <td style="padding-left: 40px">Area:&nbsp;&nbsp;&nbsp;</td>
+                <td>
+                    @(Html.Kendo()
+                          .DropDownList()
+                          .Name("Area")
+                          .DataTextField("Name")
+                          .DataValueField("Id")
+                          .OptionLabel("All")
+                          .Events(x => x.Change("onAreaChange")))
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><button id="search" type="button" style="width: 100px" class="btn btn-warning btn-sm pull-right">Search</button></td>
+                <td>
+                    
+                </td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-body" style="padding: 0px;">
+        <table style="width: 100%">
+            <colgroup>
+                <col style="width: 3%" />
+                <col style="width: 94%" />
+                <col style="width: 3%" />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td>
+                        <br />
+                        <div style="margin: 0 auto;">
+                            <table id="example" class="table table-striped table-bordered nowrap" style="margin-bottom: 0px">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 12.9%">TechCard Number</th>
+                                        <th style="width: 26.2%">Description</th>
+                                        <th style="width: 15.8%">Work</th>
+                                        <th style="width: 15.1%">Area</th>
+                                        <th style="width: 18%">Creation Date</th>
+                                        <th>Is Actual</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            <div style="height: 200px; text-align: center; overflow-y: scroll; border-left: 1px solid black;border-bottom: 1px solid black;border-color: rgb(28, 30, 34)">
+                                <div hidden no-results style="padding-top: 90px">No Results</div>
+                                <table class="table table-striped table-bordered nowrap">
+                                    <colgroup>
+                                        <col style="width: 13%" />
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                        <col />
+                                    </colgroup>
+                                    <tbody searchResults>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <br/>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <div class="panel-footer" style="height: 50px;">
+        &nbsp;
+        <button class="btn btn-primary btn-sm pull-right">Cancel</button>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $.post("@Url.Action("GetAllAreas","TechCard")",
+            (result) => {
+                var area = $('#Area').data('kendoDropDownList');
+                var dataSource = new kendo.data.DataSource({
+                    data: result
+                });
+                area.setDataSource(dataSource);
+        });
+
+        $.post("@Url.Action("GetAllWorks","TechCard")",
+            (result) => {
+            var area = $('#Work').data('kendoDropDownList');
+            var dataSource = new kendo.data.DataSource({
+                data: result
+            });
+            area.setDataSource(dataSource);
+             });
+
+        $('#search').click(() => {
+            $('[no-results]').hide();
+            $('[searchResults]').empty();
+
+            var from = $('#From').data('kendoDatePicker').value();
+            var to = $('#To').data('kendoDatePicker').value();
+            var fromDate = from ? from.toDateString() : null;
+            var toDate = to ? to.toDateString() : null;
+
+            var data = {
+                workId: $('#Work').val() ? $('#Work').val() : null,
+                areaId: $('#Area').val() ? $('#Area').val() : null,
+                state: $('#State').val() ? $('#State').val() : null,
+                fromDate: fromDate,
+                toDate: toDate,
+                description: $('#Description').val()
+            };
+
+            $.post("@Url.Action("FindTechCards","TechCard")",
+                data,
+                (result) => {
+                    if (!result.length) {
+                        $('[no-results]').show();
+                    }
+                    result.forEach((el) => {
+                        var dateObject = new Date(el.CreationDate);
+                        var date = dateObject.getDate() + '.' + (dateObject.getMonth() + 1) + '.' + dateObject.getFullYear();
+                        var imgName = el.IsActual ? "tick" : "cross";
+                        $('[searchResults]').append(
+                            `<tr>
+                                <td><a style="cursor: pointer;" href="@Url.Action("View","TechCard")/${el.Id}">${el.DisplayName}</a></td>
+                                <td>${el.Description}</td>
+                                <td>${el.Work.Name}</td>
+                                <td>${el.Area.Name}</td>
+                                <td>${date}</td>
+                                <td style="text-align: center"><img height="30" width="30" src="/images/${imgName}.png" /></td>
+                            </tr>`);
+                    });
+                });
+        });
+
+        $("#From, #To").click((arg) => {
+            $(arg.target).val(null);
+        });
+    });
+
+    function onWorkChange(arg) {
+        var work = arg.sender;
+        var workId = work.dataItem(work.select()).Id;
+
+        var url = workId
+            ? `@Url.Action("GetAreaByWork","TechCard")?workId=${workId}`
+            : "@Url.Action("GetAllAreas","TechCard")";
+
+        $.post(url, (result) => {
+            var area = $('#Area').data('kendoDropDownList');
+            var dataSource = new kendo.data.DataSource({
+                data: result
+            });
+            area.setDataSource(dataSource);
+        });
+    }
+
+    function onAreaChange(arg) {
+        var area = arg.sender;
+        var areaId = area.dataItem(area.select()).Id;
+
+        var url = areaId
+            ? `@Url.Action("GetWorksByArea","TechCard")?areaId=${areaId}`
+            : "@Url.Action("GetAllWorks","TechCard")";
+
+        $.post(url, (result) => {
+            var work = $('#Work').data('kendoDropDownList');
+            var dataSource = new kendo.data.DataSource({
+                data: result
+            });
+            work.setDataSource(dataSource);
+        });
+    }
+
+    function onFromChange(arg) {
+        var to = $('#To').data('kendoDatePicker');
+        arg.sender.value() > to.value() && to.value(null);
+    }
+
+    function onToChange(arg) {
+        var from = $('#From').data('kendoDatePicker');
+        arg.sender.value() < from.value() && from.value(null);
+    }
+
+</script>
+
+<style>
+    #filters td {
+        padding-top: 10px;
+    }
+</style>
+
+<style>
+
+    [validation] [message], [area-validation] [message] {
+        color: #DC143C;
+        font-size: 14px;
+        font-weight: 600;
+        font-style: italic;
+    }
+
+    .list-box {
+        background-color: white;
+        color: black;
+        border-radius: 3px;
+        width: 228px;
+        height: 255px;
+        word-wrap: break-word;
+        overflow: auto;
+    }
+
+    .list-box ul {
+        padding-bottom: 5px;
+    }
+
+    .list-box ul li {
+        height: 30px;
+        padding-left: 10px;
+        cursor: default;
+    }
+
+    .list-box ul li:hover {
+        background-color: silver;
+        border-radius: 3px;
+    }
+</style>
+
+<style>
+    .k-popup .k-list .k-item {
+        cursor: pointer;
+        color: black;
+    }
+
+    .k-state-border-up .k-state-active,
+    .k-state-border-down .k-state-active {
+        border-color: darkslateblue;
+        background-color: white;
+    }
+
+    .k-popup .k-list .k-state-selected.k-state-focused {
+        border-color: darkslateblue;
+        background-color: #7a8288;
+    }
+</style>

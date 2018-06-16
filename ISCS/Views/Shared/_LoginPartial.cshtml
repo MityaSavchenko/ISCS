@@ -1,0 +1,11 @@
+@using Microsoft.AspNetCore.Identity
+@using ISCS.Models
+
+@inject SignInManager<ApplicationUser> SignInManager
+
+@if (!SignInManager.IsSignedIn(User))
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li><a asp-area="" asp-controller="Account" asp-action="Login">Log in</a></li>
+    </ul>
+}
